@@ -45,6 +45,11 @@ resource "aws_instance" "web" {
 
     ]
   }
+  user_data = <<-EOF
+              #!/bin/bash -xe
+              echo 'swarm_worker' | sudo tee -a /proc/sys/kernel/hostname
+              sudo hostname swarm_worker
+              EOF
 
   connection {
     user        = var.INSTANCE_USERNAME

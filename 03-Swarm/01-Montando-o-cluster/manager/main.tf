@@ -41,9 +41,13 @@ resource "aws_instance" "web" {
       "sudo systemctl restart docker_ecr_login",
       "sudo systemctl --no-pager --full status docker_ecr_login || true",
       "if sudo systemctl is-failed --quiet docker_ecr_login; then sudo journalctl -u docker_ecr_login --no-pager -n 100; exit 1; fi"
-
     ]
   }
+  user_data = <<-EOF
+              #!/bin/bash -xe
+              echo 'swarm_manager' | sudo tee -a /proc/sys/kernel/hostname
+              sudo hostname swarm_manager
+              EOF
 
   connection {
     user        = var.INSTANCE_USERNAME
