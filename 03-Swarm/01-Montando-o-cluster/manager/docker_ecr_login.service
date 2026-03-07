@@ -1,7 +1,8 @@
 [Unit]
 Description=Docker aws ecr login
 Wants=network-online.target
-After=network.target network-online.target
+After=network.target network-online.target docker.service
+Requires=docker.service
 
 [Service]
 Type=oneshot

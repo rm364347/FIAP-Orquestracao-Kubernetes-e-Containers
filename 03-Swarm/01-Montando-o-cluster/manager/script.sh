@@ -1,33 +1,47 @@
 #!/bin/bash
+set -euo pipefail
 
-# install nginx
-sudo yum update -y
-sudo amazon-linux-extras list | grep nginx
-sudo yum clean metadata -y
+REGION="us-east-1"
 
-sudo amazon-linux-extras install docker -y
-sudo service docker start
+if command -v dnf >/dev/null 2>&1; then
+  sudo dnf update -y
+  sudo dnf install -y docker jq unzip curl
+else
+  sudo yum update -y
+  sudo yum install -y docker jq unzip curl
+fi
 
+sudo systemctl enable docker
+sudo systemctl start docker
 sudo usermod -a -G docker ec2-user
-docker info
+
+for i in {1..20}; do
+  if docker info >/dev/null 2>&1; then
+    break
+  fi
+  sleep 2
+done
+docker info >/dev/null
 
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
+rm -rf aws
+unzip -o awscliv2.zip
+sudo ./aws/install --update
 
-sudo yum install jq -y
+TOKEN="$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")"
+PUBLIC_IP="$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+  http://169.254.169.254/latest/meta-data/public-ipv4)"
 
-publicIp=`curl http://169.254.169.254/latest/meta-data/public-ipv4`
+docker swarm init --advertise-addr "$PUBLIC_IP" || true
 
-docker swarm init --advertise-addr $publicIp
+WORKER_TOKEN="$(docker swarm join-token worker -q)"
+MANAGER_TOKEN="$(docker swarm join-token manager -q)"
 
-token=`docker swarm join-token worker -q`
-tokenManager=`docker swarm join-token manager -q`
+aws configure set default.region "$REGION"
+aws ssm put-parameter --name "docker-join-worker-token" --value "$WORKER_TOKEN" --type "String" --overwrite
+aws ssm put-parameter --name "docker-join-manager-token" --value "$MANAGER_TOKEN" --type "String" --overwrite
+aws ssm put-parameter --name "docker-join-manager-ip" --value "$PUBLIC_IP" --type "String" --overwrite
 
-aws configure set default.region us-east-1
-aws ssm put-parameter --name "docker-join-worker-token" --value $token --type "String" || aws ssm put-parameter --name "docker-join-worker-token" --value $token --type "String" --overwrite
-aws ssm put-parameter --name "docker-join-manager-token" --value $tokenManager --type "String" || aws ssm put-parameter --name "docker-join-manager-token" --value $tokenManager --type "String" --overwrite
-aws ssm put-parameter --name "docker-join-manager-ip" --value $publicIp --type "String" || aws ssm put-parameter --name "docker-join-manager-ip" --value $publicIp --type "String" --overwrite
-
-accountID=`aws sts get-caller-identity | jq .Account -r`
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $accountID.dkr.ecr.us-east-1.amazonaws.com
+ACCOUNT_ID="$(aws sts get-caller-identity | jq -r .Account)"
+aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com"
