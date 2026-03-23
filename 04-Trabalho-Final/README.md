@@ -36,6 +36,6 @@ Monte um zip contendo:
 ##### Material para consulta
 
 1. Dockerfile: [link](https://github.com/vamperst/FIAP-Orquestracao-Kubernetes-e-Containers/tree/master/02-containers/02-Dockerfile)
-2. ECR: [link](https://github.com/vamperst/FIAP-Orquestracao-Kubernetes-e-Containers/tree/master/02-containers/03-registryy)
+2. ECR: [link](https://github.com/vamperst/FIAP-Orquestracao-Kubernetes-e-Containers/tree/master/02-containers/03-registry)
 3. Criar cluster swarm: [link](https://github.com/vamperst/FIAP-Orquestracao-Kubernetes-e-Containers/tree/master/03-Swarm/01-Montando-o-cluster)
 4. Docker-compose e execução: [link](https://github.com/vamperst/FIAP-Orquestracao-Kubernetes-e-Containers/tree/master/03-Swarm/02-compose-%26-swarm-intro)
