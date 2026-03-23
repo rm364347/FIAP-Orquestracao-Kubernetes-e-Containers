@@ -1,16 +1,19 @@
 # Trabalho final Docker, Swarm and Registry
 
-Para executar o trabalho crie uma pasta na raiz do cloud9. Para tal execute o comando `mkdir -p ~/environment/trabalho-final && cd ~/environment/trabalho-final`
+Para executar o trabalho crie uma pasta na raiz do cloud9. Para tal execute o comando.
+
+```shell
+mkdir -p /workspaces/FIAP-Orquestracao-Kubernetes-e-Containers/04-Trabalho-Final && cd /workspaces/FIAP-Orquestracao-Kubernetes-e-Containers/04-Trabalho-Final
+```
 
 1. Crie um Dockerfile que instale um NGINX utilizando um Ubuntu latest como base.
-   *** <b>DEVIDO A UM ERRO ESTOU POSTANDO O CONTEÚDO DO ARQUIVO DOCKERFILE. É SÓ COPIAR E IR PARA O PASSO 2</b>***
-   ``` Dockerfile
-   FROM ubuntu:18.04
+   Como algumas versões mais recentes do Ubuntu não possuem mais o comando `apt-key`, utilize o conteúdo abaixo como referência para o arquivo `Dockerfile`.
+
+   ```Dockerfile
+   FROM ubuntu:latest
    RUN apt-get update -y && \
-      apt-get install -y -q curl gnupg2
-   RUN curl http://nginx.org/keys/nginx_signing.key | apt-key add -
-   RUN apt-get update && \
-      apt-get install -y -q nginx
+      apt-get install -y -q nginx && \
+      rm -rf /var/lib/apt/lists/*
    EXPOSE 443 80
    CMD ["nginx", "-g", "daemon off;"]
    ```
@@ -32,9 +35,7 @@ Monte um zip contendo:
 
 ##### Material para consulta
 
-1. Dockerfile: [link](https://github.com/vamperst/fiap-containers-e-orquestracao/tree/master/01-containers/02-Dockerfile)
-2. ECR: [link](https://github.com/vamperst/fiap-containers-e-orquestracao/tree/master/01-containers/03-registry)
-3. Criar cluster swarm: [link](https://github.com/vamperst/fiap-containers-e-orquestracao/tree/master/02-Swarm/01-Montando-o-cluster)
-4. Docker-compose e execução: [link](https://github.com/vamperst/fiap-containers-e-orquestracao/tree/master/02-Swarm/02-compose-%26-swarm-intro)
-
-
+1. Dockerfile: [link](https://github.com/vamperst/FIAP-Orquestracao-Kubernetes-e-Containers/tree/master/02-containers/02-Dockerfile)
+2. ECR: [link](https://github.com/vamperst/FIAP-Orquestracao-Kubernetes-e-Containers/tree/master/02-containers/03-registryy)
+3. Criar cluster swarm: [link](https://github.com/vamperst/FIAP-Orquestracao-Kubernetes-e-Containers/tree/master/03-Swarm/01-Montando-o-cluster)
+4. Docker-compose e execução: [link](https://github.com/vamperst/FIAP-Orquestracao-Kubernetes-e-Containers/tree/master/03-Swarm/02-compose-%26-swarm-intro)
